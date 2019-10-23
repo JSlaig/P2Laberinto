@@ -4,7 +4,7 @@ public class MainLaberinto {
 	
 	static Scanner scanner = new Scanner(System.in);
 	
-	static int iter = 0;
+	static int iter = 0; 
 	static int countStar = 0;
 	
 	static int size;
