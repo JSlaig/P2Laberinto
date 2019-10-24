@@ -13,16 +13,18 @@ public class MainLaberinto {
 	
 	static String matrix[][];
 	
-public static void main(String args[]) {		
-	System.out.println("Introduzca el tamaño deseado para la matriz:");
+public static void main(String args[]) {	
 	
+	System.out.println("Introduzca el tamaño deseado para la matriz:");	
 	size = scanner.nextInt();
+	scanner.nextLine();
 		
 	if(size > 0) {
 		matrix = new String[size][size];
 		ask4Values();
 		scanner.close();
 	}	
+//Error 1: Tamaño menor que 1	
 	else {
 		System.err.println("Error: Tamaño del laberinto invalido.");
 	}
@@ -34,13 +36,14 @@ public static void main(String args[]) {
 public static void ask4Values() {
 	
 	if(column == 0 && row < size) {
-		 scanner.nextLine();
-		 String value = scanner.nextLine();
+
+		 String inputRow = scanner.nextLine();
 		
-		 String[] parts = value.split("\\s+");
+		 String[] parts = inputRow.split("\\s+");
 		 
 		 if(parts.length != size) {
-			 System.err.println("Entrada inválida");
+//Error 2: Numero de valores por fila incorrectos			 
+			 System.err.println("Error: tamaño de la entrada invalido");
 		 }
 		 else {
 		 setRow(parts, row);
@@ -56,7 +59,7 @@ public static void ask4Values() {
 		ask4Values();
 	}
 	
-	else if( row ==  size) {
+	else if(row  ==  size) {
 		//Cerramos el scanner ya que en lo que queda de ejecucion del programa no se necesitara leer mas valores por el teclado 
 		//Reseteamos los valores auxiliares que actuan como indice de columnas y filas
 		 column = 0;
@@ -65,26 +68,40 @@ public static void ask4Values() {
 }
 
 /*
- * Metodo que se encarga unicamente de asignar los valores que va a tener la matriz en cada fila
+ * Metodo que se encarga unicamente de asignar los valores que va a tener la matriz en cada fila y comprueba
+ * tambien si estos valores son validos
  */
 public static void setRow(String[] part, int row) {
 	
-	//Se produce un error al realizar comprobacion de parametros 
-	if(part[iter] == "0" || part[iter] == "1" || part[iter] == "*") {
-		if(part[iter] == "*") {
+	if(part[iter].equals("0") || part[iter].equals("1") || part[iter].equals("*")) {
+		
+		if(part[iter].equals("*")) {
 			countStar++;
 		}
+		
 		if(countStar > 1){
+//Error 3: Mas de 1 asterisco			
 			System.err.println("Error: Numero de asteriscos en el input excedido");	
-		}	
+			System.exit(0);
+		}
+		
 		else if(iter < size){
+			
 		matrix[row][iter] = part[iter]; 
 		iter++;
-		setRow(part, row);
+		
+			if(iter < size) {
+				setRow(part, row);
+			}
 		}
 	}
 	else {
+//Error 4: Valores diferentes de 1,0 o * introducidos		
 		System.err.println("Error: Valores introducidos incorrectos");
+		System.exit(0);
 	}
 }
+
+//Empieza la zona de los algoritmos
+//Fin de la clase
 }
