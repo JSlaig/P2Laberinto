@@ -51,7 +51,7 @@ public static void ask4Values() {
 
 		 String inputRow = scanner.nextLine();
 		
-		 String[] parts = inputRow.split("\\s+");
+		 String[] parts = inputRow.split("");
 		 
 		 if(parts.length != size) {
 //Error 2: Numero de valores por fila incorrectos			 
