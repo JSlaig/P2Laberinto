@@ -1,4 +1,4 @@
-//fallos que hay que arreglar: se queda petado en las esquinas y lo toma como sin solucion, implementar undo en el resto de metodos 
+
 import java.util.Scanner;
 
 public class MainLaberinto {
@@ -470,9 +470,9 @@ public static void undo() {
 //Rama de coordenadas del programa
 public static void writeCoordinate(){
 		if(matrix[row][column].equals("*") == true) {
-			coordinateVector[movement] = "("+row+","+column+")* ";
+			coordinateVector[movement] = "("+(row+1)+","+(column+1)+")* ";
 		}else {
-			coordinateVector[movement] = "("+row+","+column+") ";
+			coordinateVector[movement] = "("+(row+1)+","+(column+1)+") ";
 		}
 	}
 
@@ -484,9 +484,9 @@ public static void printWinCoordinates() {
 	int i = 0;
 	StringBuffer winResult = new StringBuffer();
 	if(matrix[0][0].equals("*") == true) {
-		winResult.append("(0,0)* ");
+		winResult.append("(1,1)* ");
 	}else {
-		winResult.append("(0,0) ");
+		winResult.append("(1,1) ");
 	}
 	while(coordinateVector[i] != null) {
 		winResult.append(coordinateVector[i]);
@@ -500,7 +500,7 @@ public static void printWinCoordinates() {
 	}
 	else{
 		System.out.println("SI, SIN PREMIO.");
-		System.out.println(winResult.toString());
+		System.out.print(winResult.toString());
 		System.exit(0);
 	}
 }
