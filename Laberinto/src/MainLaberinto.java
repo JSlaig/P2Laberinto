@@ -1,22 +1,29 @@
+//fallos que hay que arreglar: se queda petado en las esquinas y lo toma como sin solucion, implementar undo en el resto de metodos 
 import java.util.Scanner;
 
 public class MainLaberinto {
 	
 	static Scanner scanner = new Scanner(System.in);
 	
+	//Atributos usados en la parte de comprobacion de entradas validas
 	static int iter = 0; 
 	static int countStar = 0;
 	
+	//Atributos para definir el laberinto y el movimiento por el
 	static int size;
 	static int row;
-	static int column;
-	
+	static int column;	
 	static String matrix[][];
-	static String coordinateVector[] = new String[size * size];
-	static StringBuffer coordinates = new StringBuffer();
+	static int ntry = 0;
 	
+	//Atributos en los cuales se almacenaran las coordenadas de por donde se resuelve el laberinto
+	static String coordinateVector[] = new String[100];;
 	static int movement = 0;
+	static int lastMove = 0;
+	static int lastLastMove = 0;
+
 	
+//Metodo que se encarga del orden de ejecucion del programa
 public static void main(String args[]) {	
 	
 	System.out.println("Introduzca el tamaño deseado para la matriz:");	
@@ -26,7 +33,9 @@ public static void main(String args[]) {
 	if(size > 0) {
 		matrix = new String[size][size];
 		ask4Values();
-		scanner.close();
+		scanner.close();	
+		
+		seekPath(6);
 	}	
 //Error 1: Tamaño menor que 1	
 	else {
@@ -106,7 +115,7 @@ public static void setRow(String[] part, int row) {
 	}
 }
 
-//Empieza la zona de los algoritmos
+//zona de algoritmos de resolucion
 
 
 /*La idea principal es que unas opciones redireccionen a otra para que se sigan comprobando caminos, lo mas complicado sera hacer que recuerde
@@ -117,63 +126,76 @@ public static void setRow(String[] part, int row) {
 * para mostrar que ese camino no tiene salida, lo cual se producira solo cuando no encuentre salida, dejando asi libre el unico camino donde puede
 * avanzar
 */
+
+//Switch recursivo que llama a los movimientos
 public static void seekPath(int i) {
-	i = 6;
-	while(row < (size - 1) && column < (size - 1)) {
+	
+	while(row < (size - 1) && column < (size - 1) && row >= 0 && column >= 0) {
 		switch(i) {
 		//Caso 1: Avanza hacia la derecha
 		case 6:
-			goRight();
+			goRight(6);
 		break;
 		
 		//Caso 2: Avanza hacia la izquierda
 		case 4:
-			goLeft();
+			goLeft(4);
 		break;
 		
 		//Caso 3: Avanza hacia abajo
 		case 2:
-			goDown();
+			goDown(2);
 		break;
 		
 		//Caso 4: Avanza hacia arriba
 		case 8:
-			goUp();
+			goUp(8);
 		break;
 		
 		//Caso 5: Avanza en diagonal hacia abajo derecha
 		case 3:
-			goDownRight();
+			goDownRight(3);
 		break;
 		
 		//Caso 6: Avanza en diagonal hacia arriba derecha
 		case 9:
-			goUpRight();
+			goUpRight(9);
 		break;
 		
 		//Caso 7: Avanza en diagonal hacia abajo a la izquierda
 		case 1:
-			goDownLeft();
+			goDownLeft(1);
 		break;
 		
 		//Caso 8: Avanza en diagonal hacia arriba a la izquierda
 		case 7:
-			goUpLeft();
+			goUpLeft(7);
 		break;
 		
 		default:
-			//Retroceder y cerrar camino
+			System.out.println("NO.");
+			System.exit(0);
 		break;
 		}
-	}		
+	}
+	if(column == (size - 1) && row == (size - 1)) {
+		printWinCoordinates();
+	}
+	else if () {
+		
+	}
+	else {
+		System.out.println("NO.");
+		System.exit(0);
+	}
 }
 
 
 /*
  * Funcion que comprueba si el ultimo movimiento realizado te deja en una posicion valida es valida
  */
-public static boolean possibleMove() {
-	if(matrix[row][column].equals("1") == true) {
+public static boolean possibleMove(int moveID) {
+	if(matrix[row][column].equals("1") == true || lastMove == moveID || lastLastMove == moveID && lastMove != 0) {
 		return false;
 	}
 	else 
@@ -182,139 +204,295 @@ public static boolean possibleMove() {
 	}
 }
 //Hay que iplementar que en el ultimo movimiento posible se cambie la posicion actual por un 1 para cerrar el camino
-public static void goRight() {
+//Rama de movimientos posibles
+public static void goRight(int moveID) {
 	//Movimiento
 	column++;
 	
 	//Comprobacion
-	if(possibleMove() == false) {
+	if(possibleMove(moveID) == false) {
 		column--;
+		ntry++;
 		seekPath(3);
 	}
-	else{
+	else{			
+			ntry = 0;
+			
+			lastLastMove = lastMove;
+			lastMove = 6;
+			writeCoordinate();
 			movement++;
-			writeCoordinate(row, column);
 			seekPath(6);
 	}
 }
-
-public static void goLeft() {
+public static void goLeft(int moveID) {
 	//Movimiento
 	column--;
 	
 	//Comprobacion
-	if(possibleMove() == false) {
+	if(possibleMove(moveID) == false) {
 		column++;
+		ntry++;
 		seekPath(7);
 	}
-	else {
-		writeCoordinate(row, column);
+	else {		
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 4;
+		writeCoordinate();
+		movement++;
+		seekPath(4);
+	}
+}
+public static void goDown(int moveID) {
+	//Movimiento
+	row++;
+	
+	//Comprobacion
+	if(possibleMove(moveID) == false) {
+		row--;
+		ntry++;
+		seekPath(1);
+	}
+	else {		
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 2;
+		writeCoordinate();
+		movement++;
+		seekPath(2);
+	}
+}
+public static void goUp(int moveID) {
+	//Movimiento
+	row--;
+	
+	//Comprobacion
+	if(possibleMove(moveID) == false) {
+		row++;
+		ntry++;
+		seekPath(9);
+	}
+	else {		
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 8;
+		writeCoordinate();
+		movement++;
+		seekPath(8);
+	}
+}
+public static void goDownRight(int moveID) {
+	//Movimiento
+	column++;
+	row++;
+	
+	//Comprobacion
+	if(possibleMove(moveID) == false) {
+		column--;
+		row--;
+		ntry++;
+		
+		seekPath(2);
+	}
+	else {		
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 3;
+		writeCoordinate();
+		movement++;
 		seekPath(3);
 	}
 }
-
-public static void goDown() {
+public static void goUpRight(int moveID) {
 	//Movimiento
-	row++;
-	
-	//Comprobacion
-	if(possibleMove() == false) {
-		row--;
-		seekPath(1);
-	}
-	else {
-		writeCoordinate(row, column);
-		seekPath(6);
-	}
-}
-public static void goUp() {
-	//Movimiento
+	column++;
 	row--;
 	
 	//Comprobacion
-	if(possibleMove() == false) {
+	if(possibleMove(moveID) == false) {
+		column--;
 		row++;
+		ntry++;
+		
+		seekPath(4);
+	}
+	else {		
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 9;
+		writeCoordinate();
+		movement++;
 		seekPath(9);
 	}
-	else {
-		writeCoordinate(row, column);
-		seekPath(6);
-	}
 }
-
-public static void goDownRight() {
-	//Movimiento
-	column++;
-	row++;
-	
-	//Comprobacion
-	if(possibleMove() == false) {
-		column--;
-		row--;
-		seekPath(2);
-	}
-	else {
-		writeCoordinate(row, column);
-		seekPath(6);
-	}
-}
-
-public static void goUpRight() {
-	//Movimiento
-	column++;
-	row--;
-	
-	//Comprobacion
-	if(possibleMove() == false) {
-		column--;
-		row++;
-		seekPath(4);
-	}
-	else {
-		writeCoordinate(row, column);
-		seekPath(6);
-	}
-}
-
-public static void goUpLeft() {
+public static void goUpLeft(int moveID) {
 	//Movimiento
 	column--;
 	row--;
 	
 	//Comprobacion
-	if(possibleMove() == false) {
+	if(possibleMove(moveID) == false) {
 		column++;
 		row++;
-		seekPath(4);
+		ntry++;
+		
+		seekPath(8);
 	}
-	else {
-		writeCoordinate(row, column);
-		seekPath(6);
-	}
-}
-
-public static void goDownLeft() {
-	//Movimiento
-	column--;
-	row++;
-	
-	//Comprobacion
-	if(possibleMove() == false) {
-		column++;
-		row--;
+	else {	
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 7;
+		writeCoordinate();
+		movement++;
 		seekPath(7);
 	}
-	else {
-		writeCoordinate(row, column);
-		seekPath(6);
+}
+public static void goDownLeft(int moveID) {
+	//Movimiento
+	column--;
+	row++;
+	
+	//Comprobacion
+	if(possibleMove(moveID) == false) {
+		column++;
+		row--;
+		ntry++;
+		seekPath(4);
+	}
+	else {		
+		ntry = 0;
+		
+		lastLastMove = lastMove;
+		lastMove = 1;
+		writeCoordinate();
+		movement++;
+		seekPath(1);
 	}
 }
-public static void writeCoordinate(int x, int y){
-		if(matrix[x][y].equals("*") == true) {
-			coordinates.append("("+x+","+y+")* ");
-		}else {
-			coordinates.append("("+x+","+y+") ");
+
+public static void undo() {
+	if(ntry == 9) {
+		switch(lastMove) {
+		case 6:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			column--;
+		break;
+		
+		case 4:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			column++;
+		break;
+		
+		case 2:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			row--;
+		break;
+		
+		case 8:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			row++;
+		break;
+		
+		case 3:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			column--;
+			row--;
+		break;
+		
+		case 1:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			column++;
+			row--;
+		break;
+		
+		case 7:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			column++;
+			row++;
+		break;
+		
+		case 9:
+			removeCoordinate();
+			matrix[row][column] = "1";
+			movement--;
+			
+			column--;
+			row++;
+		break;
+		
+		default:
+			System.exit(0);
+		break;
 		}
 	}
+	seekPath(lastMove);
+}
+
+//Rama de coordenadas del programa
+public static void writeCoordinate(){
+		if(matrix[row][column].equals("*") == true) {
+			coordinateVector[movement] = "("+row+","+column+")* ";
+		}else {
+			coordinateVector[movement] = "("+row+","+column+") ";
+		}
+	}
+
+public static void removeCoordinate() {
+	coordinateVector[movement] = null;
+}
+
+public static void printWinCoordinates() {
+	int i = 0;
+	StringBuffer winResult = new StringBuffer();
+	if(matrix[0][0].equals("*") == true) {
+		winResult.append("(0,0)* ");
+	}else {
+		winResult.append("(0,0) ");
+	}
+	while(coordinateVector[i] != null) {
+		winResult.append(coordinateVector[i]);
+		i++;
+	}
+	
+	if(winResult.toString().contains("*") == true) {
+		System.out.println("SI, CON PREMIO.");
+		System.out.println(winResult.toString());
+		System.exit(0);
+	}
+	else{
+		System.out.println("SI, SIN PREMIO.");
+		System.out.println(winResult.toString());
+		System.exit(0);
+	}
+}
+
 //Fin de la clase
 }
