@@ -26,7 +26,6 @@ public class MainLaberinto {
 //Metodo que se encarga del orden de ejecucion del programa
 public static void main(String args[]) {	
 	
-	System.out.println("Introduzca el tamaño deseado para la matriz:");	
 	size = scanner.nextInt();
 	scanner.nextLine();
 		
@@ -115,17 +114,8 @@ public static void setRow(String[] part, int row) {
 	}
 }
 
+
 //zona de algoritmos de resolucion
-
-
-/*La idea principal es que unas opciones redireccionen a otra para que se sigan comprobando caminos, lo mas complicado sera hacer que recuerde
-* el camino seguido para que no se pierda y por lo tanto no entre en un bucle infinito, el registro del camino seguido se podra realizar
-* mediante un stringBuffer en el cual se le appendeen las nuevas coordenadas seguidas en cada movimiento y estas sean borradas en el caso de que
-* la casilla en la que se llegue sea invalida, una forma posible para poder volver atras y que no se vuelva a meter en el mismo callejon sin salida
-* podria ser que fuese cerrando caminos como si dejase migas de pan, es decir cambiara el valor de ese 0 en el cual tiene que retroceder por un 1
-* para mostrar que ese camino no tiene salida, lo cual se producira solo cuando no encuentre salida, dejando asi libre el unico camino donde puede
-* avanzar
-*/
 
 //Switch recursivo que llama a los movimientos
 public static void seekPath(int i) {
@@ -181,8 +171,28 @@ public static void seekPath(int i) {
 	if(column == (size - 1) && row == (size - 1)) {
 		printWinCoordinates();
 	}
-	else if () {
-		
+	else if (row < 0 || column < 0) {
+		if(row < 0 && column < 0) {
+			row++;
+			column++;
+			seekPath(8);
+		}
+		else if(row < 0) {
+			row++;			
+			seekPath(8);
+		}
+		else if(column < 0) {			
+			column++;
+			seekPath(4);
+		}
+		else if(row == size) {
+			row--;
+			seekPath(4);
+		}
+		else if(column == size) {
+			column--;
+			seekPath(2);
+		}
 	}
 	else {
 		System.out.println("NO.");
@@ -195,7 +205,7 @@ public static void seekPath(int i) {
  * Funcion que comprueba si el ultimo movimiento realizado te deja en una posicion valida es valida
  */
 public static boolean possibleMove(int moveID) {
-	if(matrix[row][column].equals("1") == true || lastMove == moveID || lastLastMove == moveID && lastMove != 0) {
+	if(matrix[row][column].equals("1") == true) {
 		return false;
 	}
 	else 
@@ -319,7 +329,8 @@ public static void goUpRight(int moveID) {
 		row++;
 		ntry++;
 		
-		seekPath(4);
+		undo();
+		seekPath(6);
 	}
 	else {		
 		ntry = 0;
